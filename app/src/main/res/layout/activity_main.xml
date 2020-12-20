@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+        android:id="@+id/fabCam"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -20,19 +20,20 @@
         android:clickable="true"
         android:src="@drawable/ic_baseline_add_a_photo_24"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:onClick="clickPic"/>
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/picView"
+        android:contentDescription="Image View"
         android:layout_width="361dp"
         android:layout_height="601dp"
         android:layout_marginTop="16dp"
         android:outlineAmbientShadowColor="#000000"
-        android:scaleType="center"
+        android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-        <!--app:srcCompat="@drawable/ic_launcher_foreground"-->
-    />
+        app:layout_constraintTop_toTopOf="parent"
 
+    />
 </androidx.constraintlayout.widget.ConstraintLayout>
