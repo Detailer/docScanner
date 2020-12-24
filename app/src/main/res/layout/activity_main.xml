@@ -6,6 +6,40 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <HorizontalScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="610dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/srollViewLinearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/picView"
+                android:layout_width="361dp"
+                android:layout_height="601dp"
+                android:layout_marginTop="16dp"
+                android:contentDescription="Image View"
+                android:outlineAmbientShadowColor="#000000"
+                android:scaleType="fitCenter" />
+
+            <ImageView
+                android:id="@+id/picView2"
+                android:layout_width="361dp"
+                android:layout_height="601dp"
+                android:layout_marginTop="16dp"
+                android:contentDescription="Image View"
+                android:outlineAmbientShadowColor="#000000"
+                android:scaleType="fitCenter" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabCam"
         android:layout_width="wrap_content"
@@ -23,18 +57,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:onClick="clickPic"/>
-
-    <ImageView
-        android:id="@+id/picView"
-        android:contentDescription="Image View"
-        android:layout_width="361dp"
-        android:layout_height="601dp"
-        android:layout_marginTop="16dp"
-        android:outlineAmbientShadowColor="#000000"
-        android:scaleType="fitCenter"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-
-    />
 </androidx.constraintlayout.widget.ConstraintLayout>

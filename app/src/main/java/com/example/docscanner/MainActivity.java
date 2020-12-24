@@ -5,9 +5,6 @@ import androidx.core.content.FileProvider;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,14 +23,22 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    ImageView imgView;
+    ImageView imgView1, imgView2;
     String currentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        imgView = (ImageView) findViewById(R.id.picView);
+
+        if (!OpenCVLoader.initDebug()) {
+            Log.e(this.getClass().getSimpleName(), "  OpenCVLoader.initDebug(), not working.");
+        } else {
+            Log.d(this.getClass().getSimpleName(), "  OpenCVLoader.initDebug(), working.");
+        }
+
+        imgView1 = (ImageView) findViewById(R.id.picView);
+        imgView2 = (ImageView) findViewById(R.id.picView2);
     }
 
     private File createImageFile() throws IOException {
@@ -84,8 +89,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             cvFunc opencvFunction= new cvFunc();
-            Bitmap temp = opencvFunction.warp(currentPhotoPath);
-            imgView.setImageBitmap(temp);
+            opencvFunction.warp(currentPhotoPath, imgView1, imgView2);
         }
     }
 
