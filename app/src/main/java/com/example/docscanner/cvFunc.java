@@ -27,11 +27,11 @@ public class cvFunc{
         Utils.matToBitmap(src, toReturn);
         return toReturn;
     }
-    public void warp(String file, ImageView imgView1, ImageView imgView2){
+    public void warp(String file, ImageView imgView1, ImageView imgView2, ImageView imgView3){
         Bitmap toReturn;
 
         Mat orig = Imgcodecs.imread(file);
-        Mat src =new Mat();
+        Mat src = new Mat();
         Size sz = new Size(0, 0);
         double scale = (float) 500 / orig.size().width;
         Imgproc.resize(orig, src, sz, scale, scale, Imgproc.INTER_AREA);
@@ -39,11 +39,12 @@ public class cvFunc{
         double w = src.size().width;
 
         Mat grey = new Mat();
-        Imgproc.cvtColor(src, grey, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.cvtColor(src, grey, Imgproc.COLOR_BGR2GRAY);
 
         Mat blur = new Mat();
         Imgproc.GaussianBlur(grey, blur, new Size(5, 5), 0);
 
+        // Convert and display on view2 edges
         Mat edge = new Mat();
         Imgproc.Canny(blur, edge, 75, 200);
         Log.d("CV_DETECT", "Setting Found Edges Image on 2!");
@@ -53,6 +54,11 @@ public class cvFunc{
         Mat hierarchy = new Mat();
         Imgproc.findContours(edge, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
+        // Display all found contours on view3
+        Mat allContours = src.clone();
+        Imgproc.drawContours(allContours, contours, -1, new Scalar(0, 0, 255), Imgproc.LINE_8);
+        imgView3.setImageBitmap(toBit(allContours));
+
         Boolean found = false;
         Point[] sortedPoints = new Point[4];
         for (MatOfPoint contour: contours){
@@ -60,15 +66,16 @@ public class cvFunc{
             double arc = Imgproc.arcLength(contourFloat, true) * 0.02;
             MatOfPoint2f approx = new MatOfPoint2f();
             Imgproc.approxPolyDP(contourFloat, approx, arc, true );
-            if (approx.total() == 4 && Imgproc.contourArea(contour) > 50.0){
+            Log.d("CV_DETECT", "Current Area: " + Imgproc.contourArea(contour) + ", Points: " + approx.total());
+            if (approx.total() == 4 && Imgproc.contourArea(contour) > 1.0){
                 found = true;
-                // Display Found Contours
+                // Display Largest Found Contours on view3
                 List<MatOfPoint> foundContour = new ArrayList<>();
                 foundContour.add(contour);
                 Mat contourMat = src.clone();
                 Imgproc.drawContours(contourMat, foundContour, -1, new Scalar(0, 0, 255), Imgproc.LINE_8);
                 Log.d("CV_DETECT", "Setting Found Contours Image on 2!");
-                imgView2.setImageBitmap(toBit(contourMat));
+                imgView3.setImageBitmap(toBit(contourMat));
 
                 //calculate the center of mass of our contour image using moments
                 Moments moment = Imgproc.moments(approx);
@@ -130,6 +137,7 @@ public class cvFunc{
             Log.d("CV_DETECT", "Setting Original Image on 1!");
             toReturn = BitmapFactory.decodeFile(file);
         }
+        // Display warpeed or orignal image on view1
         imgView1.setImageBitmap(toReturn);
     }
 }

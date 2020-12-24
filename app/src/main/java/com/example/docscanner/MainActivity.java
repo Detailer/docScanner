@@ -5,6 +5,7 @@ import androidx.core.content.FileProvider;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,7 +24,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    ImageView imgView1, imgView2;
+    ImageView imgView1, imgView2, imgView3;
     String currentPhotoPath;
 
     @Override
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         imgView1 = (ImageView) findViewById(R.id.picView);
         imgView2 = (ImageView) findViewById(R.id.picView2);
+        imgView3 = (ImageView) findViewById(R.id.picView3);
     }
 
     private File createImageFile() throws IOException {
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             cvFunc opencvFunction= new cvFunc();
-            opencvFunction.warp(currentPhotoPath, imgView1, imgView2);
+            opencvFunction.warp(currentPhotoPath, imgView1, imgView2, imgView3);
         }
     }
 

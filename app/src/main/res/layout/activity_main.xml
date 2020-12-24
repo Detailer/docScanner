@@ -24,7 +24,6 @@
                 android:id="@+id/picView"
                 android:layout_width="361dp"
                 android:layout_height="601dp"
-                android:layout_marginTop="16dp"
                 android:contentDescription="Image View"
                 android:outlineAmbientShadowColor="#000000"
                 android:scaleType="fitCenter" />
@@ -33,10 +32,18 @@
                 android:id="@+id/picView2"
                 android:layout_width="361dp"
                 android:layout_height="601dp"
-                android:layout_marginTop="16dp"
                 android:contentDescription="Image View"
                 android:outlineAmbientShadowColor="#000000"
                 android:scaleType="fitCenter" />
+
+            <ImageView
+                android:id="@+id/picView3"
+                android:layout_width="350dp"
+                android:layout_height="600dp"
+                android:contentDescription="Image View"
+                android:outlineAmbientShadowColor="#000000"
+                android:scaleType="fitCenter" />
+
         </LinearLayout>
     </HorizontalScrollView>
 
