@@ -52,7 +52,7 @@ public class cvFunc{
 
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
-        Imgproc.findContours(edge, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(edge, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
         // Display all found contours on view3
         Mat allContours = src.clone();
@@ -92,7 +92,7 @@ public class cvFunc{
                         sortedPoints[0] = new Point(datax,datay);
                         count++;
                     }else if(datax > x && datay < y){
-                        sortedPoints[1] = new org.opencv.core.Point(datax,datay);
+                        sortedPoints[1] = new Point(datax,datay);
                         count++;
                     }else if (datax < x && datay > y){
                         sortedPoints[2] = new Point(datax,datay);
