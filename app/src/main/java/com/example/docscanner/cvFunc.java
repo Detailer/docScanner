@@ -19,6 +19,8 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class cvFunc{
@@ -33,7 +35,7 @@ public class cvFunc{
         Mat orig = Imgcodecs.imread(file);
         Mat src = new Mat();
         Size sz = new Size(0, 0);
-        double scale = (float) 500 / orig.size().width;
+        double scale = (float) 1000 / orig.size().width;
         Imgproc.resize(orig, src, sz, scale, scale, Imgproc.INTER_AREA);
         double h = src.size().height;
         double w = src.size().width;
@@ -67,49 +69,43 @@ public class cvFunc{
             MatOfPoint2f approx = new MatOfPoint2f();
             Imgproc.approxPolyDP(contourFloat, approx, arc, true );
             Log.d("CV_DETECT", "Current Area: " + Imgproc.contourArea(contour) + ", Points: " + approx.total());
-            if (approx.total() == 4 && Imgproc.contourArea(contour) > 1.0){
+            if (approx.total() == 4 && Imgproc.contourArea(contour) > 3000.0){
                 found = true;
-                // Display Largest Found Contours on view3
+
+                // Display rect Found Contours on view3
                 List<MatOfPoint> foundContour = new ArrayList<>();
                 foundContour.add(contour);
                 Mat contourMat = src.clone();
+                //Imgproc.cvtColor(contourMat, contourMat, Imgproc.COLOR_BGR2GRAY);
                 Imgproc.drawContours(contourMat, foundContour, -1, new Scalar(0, 0, 255), Imgproc.LINE_8);
                 Log.d("CV_DETECT", "Setting Found Contours Image on 2!");
                 imgView3.setImageBitmap(toBit(contourMat));
 
-                //calculate the center of mass of our contour image using moments
-                Moments moment = Imgproc.moments(approx);
-                int x = (int) (moment.get_m10() / moment.get_m00());
-                int y = (int) (moment.get_m01() / moment.get_m00());
-
-                //SORT POINTS RELATIVE TO CENTER OF MASS
-                int count = 0;
-                for(int i = 0; i < approx.total(); i++){
-                    double[] data = approx.get(i, 0);
-                    double datax = data[0];
-                    double datay = data[1];
-                    if(datax < x && datay < y){
-                        sortedPoints[0] = new Point(datax,datay);
-                        count++;
-                    }else if(datax > x && datay < y){
-                        sortedPoints[1] = new Point(datax,datay);
-                        count++;
-                    }else if (datax < x && datay > y){
-                        sortedPoints[2] = new Point(datax,datay);
-                        count++;
-                    }else if (datax > x && datay > y){
-                        sortedPoints[3] = new Point(datax,datay);
-                        count++;
-                    }
+                // store points from approx in array and sort
+                for (int i = 0; i < approx.total(); i++) {
+                    double[] temp = approx.get(i, 0);
+                    double dataX = temp[0];
+                    double dataY = temp[1];
+                    sortedPoints[i] = new Point(dataX, dataY);
                 }
+                Arrays.sort(sortedPoints, new Comparator<Point>() {
+                    @Override
+                    public int compare(Point a, Point b) {
+                        int xComp = Double.compare(a.x, b.x);
+                        if (xComp == 0)
+                            return Double.compare(a.y, b.y);
+                        else
+                            return xComp;
+                    }
+                });
+                break;
             }
-            break;
         }
         if (found){
             MatOfPoint2f source = new MatOfPoint2f(
                     sortedPoints[0],
-                    sortedPoints[1],
                     sortedPoints[2],
+                    sortedPoints[1],
                     sortedPoints[3]
             );
             MatOfPoint2f destination = new MatOfPoint2f(
@@ -127,10 +123,8 @@ public class cvFunc{
             Imgproc.cvtColor(warpped, warrpedGrey, Imgproc.COLOR_RGB2GRAY);
 
             Mat finalMat = new Mat();
-            Imgproc.adaptiveThreshold(warrpedGrey, finalMat, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 6);
+            Imgproc.adaptiveThreshold(warrpedGrey, finalMat, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
 
-            // Display warpeed image
-            Log.d("CV_DETECT", "Setting Warrped Image on 1!");
             toReturn = toBit(finalMat);
         }
         else{
