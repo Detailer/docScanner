@@ -54,7 +54,7 @@ public class cvFunc{
 
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
-        Imgproc.findContours(edge, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(edge, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
         // Display all found contours on view3
         Mat allContours = src.clone();
@@ -63,45 +63,52 @@ public class cvFunc{
 
         Boolean found = false;
         Point[] sortedPoints = new Point[4];
+        double largest_area = -1.0;
+        MatOfPoint largest_contour = new MatOfPoint();
+        MatOfPoint2f largest_approx = new MatOfPoint2f();
         for (MatOfPoint contour: contours){
             MatOfPoint2f contourFloat = new MatOfPoint2f(contour.toArray());
             double arc = Imgproc.arcLength(contourFloat, true) * 0.02;
             MatOfPoint2f approx = new MatOfPoint2f();
             Imgproc.approxPolyDP(contourFloat, approx, arc, true );
             Log.d("CV_DETECT", "Current Area: " + Imgproc.contourArea(contour) + ", Points: " + approx.total());
-            if (approx.total() == 4 && Imgproc.contourArea(contour) > 3000.0){
+            if (approx.total() == 4 && Imgproc.contourArea(contour) > 500.0){
                 found = true;
-
-                // Display rect Found Contours on view3
-                List<MatOfPoint> foundContour = new ArrayList<>();
-                foundContour.add(contour);
-                Mat contourMat = src.clone();
-                //Imgproc.cvtColor(contourMat, contourMat, Imgproc.COLOR_BGR2GRAY);
-                Imgproc.drawContours(contourMat, foundContour, -1, new Scalar(0, 0, 255), Imgproc.LINE_8);
-                Log.d("CV_DETECT", "Setting Found Contours Image on 2!");
-                imgView3.setImageBitmap(toBit(contourMat));
-
-                // store points from approx in array and sort
-                for (int i = 0; i < approx.total(); i++) {
-                    double[] temp = approx.get(i, 0);
-                    double dataX = temp[0];
-                    double dataY = temp[1];
-                    sortedPoints[i] = new Point(dataX, dataY);
+                double curr_area = Imgproc.contourArea(contour);
+                if (curr_area >= largest_area){
+                    largest_area = curr_area;
+                    largest_contour = contour;
+                    largest_approx = approx;
                 }
-                Arrays.sort(sortedPoints, new Comparator<Point>() {
-                    @Override
-                    public int compare(Point a, Point b) {
-                        int xComp = Double.compare(a.x, b.x);
-                        if (xComp == 0)
-                            return Double.compare(a.y, b.y);
-                        else
-                            return xComp;
-                    }
-                });
-                break;
             }
         }
         if (found){
+            // Display rect Found Contours on view3
+            List<MatOfPoint> foundContour = new ArrayList<>();
+            foundContour.add(largest_contour);
+            Mat contourMat = src.clone();
+            Imgproc.drawContours(contourMat, foundContour, -1, new Scalar(0, 0, 255), Imgproc.LINE_8);
+            Log.d("CV_DETECT", "Setting Found Contours Image on 2!");
+            imgView3.setImageBitmap(toBit(contourMat));
+
+            // store points from largest approx in array and sort
+            for (int i = 0; i < largest_approx.total(); i++) {
+                double[] temp = largest_approx.get(i, 0);
+                double dataX = temp[0];
+                double dataY = temp[1];
+                sortedPoints[i] = new Point(dataX, dataY);
+            }
+            Arrays.sort(sortedPoints, new Comparator<Point>() {
+                @Override
+                public int compare(Point a, Point b) {
+                    int xComp = Double.compare(a.x, b.x);
+                    if (xComp == 0)
+                        return Double.compare(a.y, b.y);
+                    else
+                        return xComp;
+                }
+            });
+
             MatOfPoint2f source = new MatOfPoint2f(
                     sortedPoints[0],
                     sortedPoints[2],
