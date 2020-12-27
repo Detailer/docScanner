@@ -18,6 +18,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -29,10 +30,10 @@ public class cvFunc{
         Utils.matToBitmap(src, toReturn);
         return toReturn;
     }
-    public void warp(String file, ImageView imgView1, ImageView imgView2, ImageView imgView3){
+    public void warp(File file, ImageView imgView1, ImageView imgView2, ImageView imgView3){
         Bitmap toReturn;
 
-        Mat orig = Imgcodecs.imread(file);
+        Mat orig = Imgcodecs.imread(file.getAbsolutePath());
         Mat src = new Mat();
         Size sz = new Size(0, 0);
         double scale = (float) 1000 / orig.size().width;
@@ -136,7 +137,7 @@ public class cvFunc{
         }
         else{
             Log.d("CV_DETECT", "Setting Original Image on 1!");
-            toReturn = BitmapFactory.decodeFile(file);
+            toReturn = BitmapFactory.decodeFile(file.getAbsolutePath());
         }
         // Display warpeed or orignal image on view1
         imgView1.setImageBitmap(toReturn);

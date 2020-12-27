@@ -31,10 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_IMAGE_GET = 2;
-    private static final int CAMERA_PERMISSION_CODE = 1;
-    private static final int WRITE_STORAGE_PERMISSION_CODE = 2;
-    private static final int READ_STORAGE_PERMISSION_CODE = 3;
-
+    private static final int PERMISSION_ALL = 1;
     ImageView imgView1, imgView2, imgView3;
     String currentPhotoPath;
 
@@ -54,12 +51,13 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
-    public void checkPermission(String permission, int requestCode)
+    public Boolean checkPermission(String[] permissions)
     {
-        if (ContextCompat.checkSelfPermission(MainActivity.this, permission) == PackageManager.PERMISSION_DENIED) {
-            // Requesting the permission
-            ActivityCompat.requestPermissions(MainActivity.this, new String[] { permission }, requestCode);
+        for (int i =0; i < permissions.length; i++)
+        if (ContextCompat.checkSelfPermission(MainActivity.this, permissions[i]) == PackageManager.PERMISSION_DENIED) {
+            return  false;
         }
+        return  true;
     }
 
     @Override
@@ -67,31 +65,16 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == CAMERA_PERMISSION_CODE) {
+        if (requestCode == PERMISSION_ALL) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(MainActivity.this,
-                        "Camera Permission Granted",
+                        "ALL Permissions Granted",
                         Toast.LENGTH_SHORT)
                         .show();
             }
             else {
                 Toast.makeText(MainActivity.this,
-                        "Camera Permission Denied! App Will Crash!",
-                        Toast.LENGTH_SHORT)
-                        .show();
-            }
-        }
-        else if (requestCode == WRITE_STORAGE_PERMISSION_CODE || requestCode == READ_STORAGE_PERMISSION_CODE) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(MainActivity.this,
-                        "Storage Permission Granted",
-                        Toast.LENGTH_SHORT)
-                        .show();
-            }
-            else {
-                Toast.makeText(MainActivity.this,
-                        "Storage Permission Denied! App Will Crash!",
+                        "Not All Permission Granted! App Will Crash!",
                         Toast.LENGTH_SHORT)
                         .show();
             }
@@ -114,9 +97,12 @@ public class MainActivity extends AppCompatActivity {
         imgView3 = (ImageView) findViewById(R.id.picView3);
 
         //checking perms
-        checkPermission(Manifest.permission.CAMERA, CAMERA_PERMISSION_CODE);
-        checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_STORAGE_PERMISSION_CODE);
-        checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, READ_STORAGE_PERMISSION_CODE);
+        String[] allPermissions = {Manifest.permission.CAMERA,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if(!checkPermission(allPermissions)){
+            ActivityCompat.requestPermissions(this, allPermissions, PERMISSION_ALL);
+        }
     }
 
     public void clickPic(View view) {
@@ -163,13 +149,14 @@ public class MainActivity extends AppCompatActivity {
         cvFunc opencvFunction= new cvFunc();
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            opencvFunction.warp(currentPhotoPath, imgView1, imgView2, imgView3);
+            File file = new File(currentPhotoPath);
+            opencvFunction.warp(file, imgView1, imgView2, imgView3);
         }
 
         if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
             Uri fullPhotoUri = data.getData();
-            // TODO
-            // opencvFunction.warp(file.getAbsolutePath(), imgView1, imgView2, imgView3);
+            File file = new File(fullPhotoUri.getPath());
+             opencvFunction.warp(file, imgView1, imgView2, imgView3);
         }
     }
 
