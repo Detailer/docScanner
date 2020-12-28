@@ -30,10 +30,12 @@ public class cvFunc{
         Utils.matToBitmap(src, toReturn);
         return toReturn;
     }
-    public void warp(File file, ImageView imgView1, ImageView imgView2, ImageView imgView3){
-        Bitmap toReturn;
 
-        Mat orig = Imgcodecs.imread(file.getAbsolutePath());
+    public void warp(Bitmap file, ImageView imgView1, ImageView imgView2, ImageView imgView3){
+        Bitmap toReturn = file;
+
+        Mat orig = new Mat();
+        Utils.bitmapToMat(file, orig);
         Mat src = new Mat();
         Size sz = new Size(0, 0);
         double scale = (float) 1000 / orig.size().width;
@@ -137,7 +139,6 @@ public class cvFunc{
         }
         else{
             Log.d("CV_DETECT", "Setting Original Image on 1!");
-            toReturn = BitmapFactory.decodeFile(file.getAbsolutePath());
         }
         // Display warpeed or orignal image on view1
         imgView1.setImageBitmap(toReturn);

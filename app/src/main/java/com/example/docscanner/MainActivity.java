@@ -10,6 +10,10 @@ import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
@@ -143,20 +147,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
 
         cvFunc opencvFunction= new cvFunc();
-
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            File file = new File(currentPhotoPath);
-            opencvFunction.warp(file, imgView1, imgView2, imgView3);
+            //File file = new File(currentPhotoPath);
+            Bitmap bmp = BitmapFactory.decodeFile(currentPhotoPath);
+            opencvFunction.warp(bmp, imgView1, imgView2, imgView3);
         }
 
         if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
             Uri fullPhotoUri = data.getData();
-            File file = new File(fullPhotoUri.getPath());
-             opencvFunction.warp(file, imgView1, imgView2, imgView3);
+            try {
+                Bitmap src = ImageDecoder.decodeBitmap(ImageDecoder.createSource(getContentResolver(), fullPhotoUri));
+                Bitmap bmp = Bitmap.createBitmap(src.getWidth() + 96, src.getHeight() + 96, Bitmap.Config.ARGB_8888);
+                imgView1.setImageBitmap(bmp);
+                //opencvFunction.warp(bmp, imgView1, imgView2, imgView3);
+            }
+            catch (IOException e){
+                Log.e("BITMAP", "DECODE ERROR!");
+            }
         }
     }
 
