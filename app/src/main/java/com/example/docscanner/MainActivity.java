@@ -1,6 +1,7 @@
 package com.example.docscanner;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -8,6 +9,8 @@ import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -16,8 +19,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -85,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,28 +152,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
 
         cvFunc opencvFunction= new cvFunc();
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            //File file = new File(currentPhotoPath);
-            Bitmap bmp = BitmapFactory.decodeFile(currentPhotoPath);
-            opencvFunction.warp(bmp, imgView1, imgView2, imgView3);
+            opencvFunction.warp(currentPhotoPath, imgView1, imgView2, imgView3);
         }
 
         if (requestCode == REQUEST_IMAGE_GET && resultCode == RESULT_OK) {
             Uri fullPhotoUri = data.getData();
-            try {
-                Bitmap src = ImageDecoder.decodeBitmap(ImageDecoder.createSource(getContentResolver(), fullPhotoUri));
-                Bitmap bmp = Bitmap.createBitmap(src.getWidth() + 96, src.getHeight() + 96, Bitmap.Config.ARGB_8888);
-                imgView1.setImageBitmap(bmp);
-                //opencvFunction.warp(bmp, imgView1, imgView2, imgView3);
-            }
-            catch (IOException e){
-                Log.e("BITMAP", "DECODE ERROR!");
-            }
+            String realPath = UriPath.getPath(this, fullPhotoUri);
+            Log.d("FILED", realPath);
+            opencvFunction.warp(realPath, imgView1, imgView2, imgView3);
         }
     }
 
